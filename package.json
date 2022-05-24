@@ -14,12 +14,15 @@
   ],
   "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "vitest",
+    "test": "vitest --dir test",
     "test-types": "tsd",
+    "pretest-build": "del-cli dist example/.next && npm run build && (cd example && npm run build)",
+    "test-build": "vitest scripts/app-bundle.test.ts",
     "build": "tsc"
   },
   "keywords": [],
   "devDependencies": {
+    "del-cli": "^4.0.1",
     "msw": "^0.39.2",
     "node-fetch": "^3.2.4",
     "node-mocks-http": "^1.11.0",

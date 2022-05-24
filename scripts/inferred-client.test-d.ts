@@ -1,5 +1,6 @@
 import { expectType } from 'tsd'
-import { createClient, createServer } from '../src/index.js'
+import { createClient } from './src/client.js'
+import { createServer } from './src/server.js'
 
 const api = createServer(
   {

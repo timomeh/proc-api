@@ -1,21 +1,38 @@
-import { CreatedServer, Procs } from './types.js'
+import {
+  Resolvers,
+  ProcRequest,
+  ProcResponse,
+  ProcServer,
+  CreateHandlerOptions,
+} from './types.js'
 
-type Options = {
-  prefix?: string
-}
+export function createServer<TResolvers extends Resolvers>(
+  resolvers: TResolvers,
+): ProcServer<TResolvers> {
+  function createHandler(opts: CreateHandlerOptions) {
+    return async function handler(req: ProcRequest, res: ProcResponse) {
+      const url = new URL(req.url!, `http://${req.headers.host}`)
+      const procName = url.pathname
+        .replace(opts.prefix || '/', '')
+        .replace(/\//, '')
 
-export function createServer<TProcs extends Procs>(
-  procs: TProcs,
-  opts: Options,
-) {
-  const handler: CreatedServer['handler'] = (req, res) => {
-    const url = new URL(req.url!, `http://${req.headers.host}`)
-    const procName = url.pathname.replace(opts.prefix || '/', '')
-    return procs[procName]()
+      let type: 'mutate' | 'query' = 'mutate'
+      if (req.method?.toLowerCase() === 'get') {
+        type = 'query'
+      }
+
+      const proc = resolvers[type]?.[procName]
+      if (!proc) {
+        throw new Error('no proc!')
+      }
+
+      const data = await proc.call({ req, res })
+      return res.json(data)
+    }
   }
 
   return {
-    procs,
-    handler,
+    __resolvers: resolvers,
+    createHandler,
   }
 }
