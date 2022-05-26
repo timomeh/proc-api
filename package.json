@@ -53,5 +53,8 @@
   },
   "tsd": {
     "directory": "./test"
+  },
+  "np": {
+    "yarn": false
   }
 }
