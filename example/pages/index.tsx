@@ -5,11 +5,20 @@ import { client } from '../lib/proc-api-client'
 const Index: NextPage = () => {
   const [message, setMessage] = React.useState('...')
 
-  React.useEffect(() => {
-    client.helloWorld().then(({ message }) => setMessage(message))
-  }, [])
-
-  return <div>Proc says: {message}</div>
+  return (
+    <div>
+      Proc says: {message}
+      <br />
+      <button
+        onClick={async () => {
+          const { message } = await client.query.helloWorld()
+          setMessage(message)
+        }}
+      >
+        Call Proc
+      </button>
+    </div>
+  )
 }
 
 export default Index

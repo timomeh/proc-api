@@ -16,6 +16,6 @@ test('server code does not leak into client bundle', async () => {
     .map((line) => line.replace(/\s\s+/g, ' '))
 
   expect(lines).toEqual([
-    `example/.next//server/pages/api/[...proc].js:35: message: "Hello, World!"`,
+    `example/.next//server/pages/api/[...proc].js:75: message: "Hello, World!"`,
   ])
 })

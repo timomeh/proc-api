@@ -16,18 +16,17 @@ export function createServer<TResolvers extends Resolvers>(
         .replace(opts.prefix || '/', '')
         .replace(/\//, '')
 
-      let type: 'mutate' | 'query' = 'mutate'
-      if (req.method?.toLowerCase() === 'get') {
-        type = 'query'
-      }
-
+      const type = req.method?.toLowerCase() === 'get' ? 'query' : 'mutate'
       const proc = resolvers[type]?.[procName]
       if (!proc) {
-        throw new Error('no proc!')
+        res.statusCode = 404
+        const notFoundError = new Error('Not Found')
+        Object.assign(notFoundError, { status: 404, statusCode: 404 })
+        throw notFoundError
       }
 
-      const data = await proc.call({ req, res })
-      return res.json(data)
+      const data = await proc.run({ req, res })
+      return data
     }
   }
 

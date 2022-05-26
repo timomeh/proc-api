@@ -1,11 +1,17 @@
-import { createServer } from '../../dist/server'
-import { helloWorld } from './procs/helloWorld'
+import { createServer, proc } from '../../dist/index'
 
-export const api = createServer(
-  {
-    helloWorld,
-  },
-  {
-    prefix: '/api/',
+const helloWorld = proc.handler(
+  proc.pipe((ctx) => ctx),
+  async (ctx) => {
+    return {
+      message: 'Hello, World!',
+    }
   },
 )
+
+export const api = createServer({
+  query: {
+    helloWorld,
+  },
+  mutate: {},
+})

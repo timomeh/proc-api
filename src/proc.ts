@@ -7,7 +7,7 @@ function procHandler<TProcessedCtx, TRes>(
 ) {
   return {
     __ctxFn: ctxFn,
-    call: async (ctx: Ctx) => {
+    run: async (ctx: Ctx) => {
       const processedCtx = await ctxFn(ctx)
       return fn(processedCtx)
     },
