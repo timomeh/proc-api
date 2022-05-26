@@ -17,7 +17,7 @@ const procServer = createServer({
   query: {
     items: proc.handler(
       proc.pipe((ctx) => ctx),
-      async (ctx) => {
+      async () => {
         return items
       },
     ),
