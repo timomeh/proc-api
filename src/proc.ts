@@ -1,6 +1,13 @@
 import { pipe } from './pipe.js'
 import { Ctx } from './types.js'
-import { body, params, zodParams, zodBody } from './validation.js'
+import {
+  body,
+  params,
+  zodParams,
+  zodBody,
+  yupParams,
+  yupBody,
+} from './validation.js'
 
 function procHandler<TProcessedCtx, TRes>(
   ctxFn: (ctx: Ctx) => TProcessedCtx,
@@ -22,4 +29,6 @@ export const proc = {
   params,
   zodParams,
   zodBody,
+  yupParams,
+  yupBody,
 }

@@ -1,9 +1,13 @@
 import { afterAll, afterEach, beforeAll } from 'vitest'
-import got from 'got'
+
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 import httpMocks, { RequestMethod } from 'node-mocks-http'
+
+import got from 'got'
 import { z } from 'zod'
+import * as yup from 'yup'
+
 import { createClient, createServer, proc } from '../src/index.js'
 
 const items = [
@@ -39,6 +43,21 @@ const procServer = createServer({
           .splice(0, ctx.params.limit)
       },
     ),
+    yupItems: proc.handler(
+      proc.pipe(
+        proc.yupParams(
+          yup.object({
+            status: yup.string().oneOf(['todo', 'done']).required(),
+            limit: yup.number(),
+          }),
+        ),
+      ),
+      async (ctx) => {
+        return items
+          .filter((item) => item.status === ctx.params.status)
+          .splice(0, ctx.params.limit || Infinity)
+      },
+    ),
   },
   mutate: {
     createItem: proc.handler(
@@ -51,6 +70,18 @@ const procServer = createServer({
       proc.pipe(
         proc.zodBody(
           z.object({ id: z.union([z.literal('qux'), z.literal('baz')]) }),
+        ),
+      ),
+      async (ctx) => {
+        return { id: ctx.body.id, name: 'new item' }
+      },
+    ),
+    yupCreateItem: proc.handler(
+      proc.pipe(
+        proc.yupBody(
+          yup.object({
+            id: yup.string().oneOf(['qux', 'baz']).required(),
+          }),
         ),
       ),
       async (ctx) => {
@@ -90,12 +121,13 @@ const server = setupServer(
       )
 
       return res(ctx.json(data))
-    } catch (err) {
+    } catch (error) {
       return res(
-        ctx.status(err.statusCode || 500),
+        ctx.status(error.statusCode || 500),
         ctx.json({
-          error: err.name,
-          issues: err.issues,
+          error: error.name,
+          issues: error.issues,
+          errors: error.errors,
         }),
       )
     }
