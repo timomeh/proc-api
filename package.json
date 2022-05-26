@@ -1,31 +1,44 @@
 {
-  "name": "proc-api",
-  "version": "0.0.0",
-  "description": "",
+  "name": "proz",
+  "version": "0.0.0-dev.0",
+  "description": "TypeScript-powered HTTP RPC library for your own server and client",
   "license": "MIT",
   "author": "Timo Mämecke <maemecketimo@gmail.com> (https://github.com/timomeh)",
-  "type": "module",
-  "sideEffects": false,
+  "repository": "timomeh/proz",
   "engines": {
-    "node": ">=12"
+    "node": ">=14.16"
   },
-  "exports": [
-    "./dist/index.js"
-  ],
-  "types": "./dist/index.d.ts",
   "scripts": {
     "test": "vitest --dir test",
     "test-types": "tsd",
     "pretest-build": "del-cli dist example/.next && npm run build && (cd example && npm run build)",
     "test-build": "vitest scripts/app-bundle.test.ts --watch=false",
-    "build": "tsc"
+    "release": "np",
+    "prepare": "npm run build",
+    "build": "del-cli dist && tsc"
   },
-  "keywords": [],
+  "sideEffects": false,
+  "type": "module",
+  "exports": "./dist/index.js",
+  "types": "dist",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "rpc",
+    "api",
+    "typescript",
+    "simple",
+    "typed",
+    "client",
+    "nextjs"
+  ],
   "devDependencies": {
     "del-cli": "^4.0.1",
     "got": "^12.1.0",
     "msw": "^0.39.2",
     "node-mocks-http": "^1.11.0",
+    "np": "^7.6.1",
     "prettier": "^2.6.2",
     "tsd": "^0.20.0",
     "typescript": "4.7.1-rc",
