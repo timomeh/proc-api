@@ -16,7 +16,6 @@ with proz looks like calling any other async JavaScript function.**
   types at all.
 - Groups your API methods into Queries and Mutations, which you might already
   know from GraphQL or react-query.
-- Uses es
 
 But why not GraphQL or a RESTful API? Because for developing your own app, you
 don't need it. Just use convenient Remote Procedure Calls (PRC).
