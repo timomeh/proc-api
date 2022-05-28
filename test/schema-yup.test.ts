@@ -1,19 +1,18 @@
 import { expect, test } from 'vitest'
-import { z } from 'zod'
+import * as yup from 'yup'
 import { createClient, createServer, proc } from '../src'
 import { createTestServer, fetch } from './lib/test-server'
 
 const procServer = createServer({
   query: {
     items: proc.handler(
-      proc.zodParams(
-        z.object({
-          status: z.union([z.literal('todo'), z.literal('done')]),
-          limit: z.preprocess(
-            (val: any) => (val ? parseInt(val) : undefined),
-            z.number().max(5).nullable(),
-          ),
-        }),
+      proc.pipe(
+        proc.params(
+          yup.object({
+            status: yup.string().oneOf(['todo', 'done']).required(),
+            limit: yup.number().max(5),
+          }),
+        ),
       ),
       async (ctx) => {
         return [
@@ -29,7 +28,13 @@ const procServer = createServer({
   },
   mutate: {
     createItem: proc.handler(
-      proc.pipe(proc.zodBody(z.object({ priority: z.number().max(5) }))),
+      proc.pipe(
+        proc.body(
+          yup.object({
+            priority: yup.number().max(5),
+          }),
+        ),
+      ),
       async (ctx) => {
         return { id: 'id', name: 'new item', priority: ctx.body.priority }
       },
@@ -41,7 +46,7 @@ createTestServer(procServer)
 const client = createClient<typeof procServer>({ fetch })
 
 test('handles params in queries', async () => {
-  expect(await client.query.items({ limit: 2, status: 'todo' })).toEqual([
+  expect(await client.query.items({ status: 'todo', limit: 2 })).toEqual([
     { id: 1, status: 'todo' },
     { id: 3, status: 'todo' },
   ])
@@ -49,22 +54,22 @@ test('handles params in queries', async () => {
 
 test('handles failing param validation in queries', async () => {
   expect(await client.query.items({ limit: 6, status: 'todo' })).toMatchObject({
-    error: 'ZodError',
-    issues: [{ code: 'too_big' }],
+    error: 'ValidationError',
+    errors: ['limit must be less than or equal to 5'],
   })
 })
 
 test('handles body in mutations', async () => {
   expect(await client.mutate.createItem({ priority: 5 })).toEqual({
     id: 'id',
-    priority: 5,
     name: 'new item',
+    priority: 5,
   })
 })
 
 test('handles failing body validation in mutations', async () => {
   expect(await client.mutate.createItem({ priority: 6 })).toMatchObject({
-    error: 'ZodError',
-    issues: [{ code: 'too_big' }],
+    error: 'ValidationError',
+    errors: ['priority must be less than or equal to 5'],
   })
 })

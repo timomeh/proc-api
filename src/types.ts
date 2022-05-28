@@ -8,13 +8,13 @@ export type ProcRequest = IncomingMessage & {
 }
 export type ProcResponse = ServerResponse
 
-export type Ctx = {
+export type ProcCtx = {
   req: ProcRequest
   res: ProcResponse
 }
 
-export type ProcHandler<TCtxFn extends Ctx = Ctx> = {
-  __ctxFn: (ctx: Ctx) => Promise<TCtxFn>
+export type ProcHandler<TCtxFn extends ProcCtx = ProcCtx> = {
+  __ctxFn: (ctx: ProcCtx) => Promise<TCtxFn>
   run: (ctx: TCtxFn) => Promise<any>
 }
 
@@ -38,3 +38,5 @@ export type FetchOptions = {
 export type ClientOptions = {
   fetch: (opts: FetchOptions) => Promise<unknown>
 }
+
+export type Validator<TValidated> = (input: any) => Promise<TValidated>

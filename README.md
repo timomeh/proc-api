@@ -37,7 +37,7 @@ const addTodoCtx = proz.pipe(
     return { ...ctx, user }
   },
   // Validate and sanitize the request's body with yup, zod, ...
-  proz.yupBody({ id: yup.string().required }) 
+  proz.body(yup.object({ id: yup.string().required() })) 
 )
 
 // Use handler() to create your API method.
@@ -55,7 +55,7 @@ const addTodo = proz.handler(addTodoCtx, async (ctx) => {
 const todosCtx = proz.pipe(
   authentication,
   // Validate and sanitize the request's query params.
-  proz.yupParams({ status: yup.string().oneOf(['todo', 'done']) })
+  proz.params(yup.object({ status: yup.string().oneOf(['todo', 'done']) }))
 )
 
 const todos = proz.handler(todosCtx, async (ctx) => {
