@@ -1,13 +1,4 @@
-import { Ctx, ProcHandler, ProcServer } from './types.js'
-
-type ClientOptions = {
-  fetch: (opts: {
-    proc: string
-    method: 'GET' | 'POST'
-    body?: any
-    params?: any
-  }) => Promise<unknown>
-}
+import { ClientOptions, Ctx, ProcHandler, ProcServer } from './types.js'
 
 type ExCtx = Ctx & { params?: any; body?: any }
 

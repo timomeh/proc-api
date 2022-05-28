@@ -25,11 +25,16 @@ export type Resolvers = {
 
 export type ProcServer<TResolvers extends Resolvers = Resolvers> = {
   __resolvers: TResolvers
-  createHandler: (
-    opts: CreateHandlerOptions,
-  ) => (req: ProcRequest, res: ProcResponse) => Promise<any>
+  handleRequest: (req: ProcRequest, res: ProcResponse) => Promise<any>
 }
 
-export type CreateHandlerOptions = {
-  prefix?: string
+export type FetchOptions = {
+  proc: string
+  method: 'GET' | 'POST'
+  body?: any
+  params?: any
+}
+
+export type ClientOptions = {
+  fetch: (opts: FetchOptions) => Promise<unknown>
 }
