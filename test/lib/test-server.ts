@@ -4,10 +4,10 @@ import { setupServer } from 'msw/node'
 import httpMocks, { RequestMethod } from 'node-mocks-http'
 import got from 'got'
 
-import { ProcServer, FetchOptions } from '../../src/index.js'
+import { ProzResolver, FetchOptions } from '../../src/index.js'
 
-export const fetch = async ({ proc, method, body, params }: FetchOptions) => {
-  return got(`http://test.tld/api/${proc}`, {
+export const fetch = async ({ name, method, body, params }: FetchOptions) => {
+  return got(`http://test.tld/api/${name}`, {
     method,
     json: body,
     searchParams: new URLSearchParams(params),
@@ -18,11 +18,11 @@ export const fetch = async ({ proc, method, body, params }: FetchOptions) => {
   }).json()
 }
 
-export function createTestServer(procServer: ProcServer) {
+export function createTestServer(resolver: ProzResolver) {
   const server = setupServer(
     rest.all('http://test.tld/api/*', async (req, res, ctx) => {
       try {
-        const data = await procServer.handleRequest(
+        const data = await resolver.handleRequest(
           httpMocks.createRequest({
             url: req.url.toString(),
             method: req.method as RequestMethod,

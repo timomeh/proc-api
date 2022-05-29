@@ -1,44 +1,40 @@
 import { expect, test } from 'vitest'
 import { z } from 'zod'
-import { createClient, createServer, proc } from '../src'
+import { createProzClient, createProzResolver, proz } from '../src'
 import { createTestServer, fetch } from './lib/test-server'
 
-const procServer = createServer({
-  query: {
-    items: proc.handler(
-      proc.params(
-        z.object({
-          status: z.union([z.literal('todo'), z.literal('done')]),
-          limit: z.preprocess(
-            (val: any) => (val ? parseInt(val) : undefined),
-            z.number().max(5).nullable(),
-          ),
-        }),
-      ),
-      async (ctx) => {
-        return [
-          { id: 1, status: 'todo' as const },
-          { id: 2, status: 'done' as const },
-          { id: 3, status: 'todo' as const },
-          { id: 4, status: 'todo' as const },
-        ]
-          .filter((item) => item.status === ctx.params.status)
-          .splice(0, ctx.params.limit || Infinity)
-      },
+const prozResolver = createProzResolver({
+  items: proz.query(
+    proz.params(
+      z.object({
+        status: z.union([z.literal('todo'), z.literal('done')]),
+        limit: z.preprocess(
+          (val: any) => (val ? parseInt(val) : undefined),
+          z.number().max(5).nullable(),
+        ),
+      }),
     ),
-  },
-  mutate: {
-    createItem: proc.handler(
-      proc.pipe(proc.body(z.object({ priority: z.number().max(5) }))),
-      async (ctx) => {
-        return { id: 'id', name: 'new item', priority: ctx.body.priority }
-      },
-    ),
-  },
+    async (ctx) => {
+      return [
+        { id: 1, status: 'todo' as const },
+        { id: 2, status: 'done' as const },
+        { id: 3, status: 'todo' as const },
+        { id: 4, status: 'todo' as const },
+      ]
+        .filter((item) => item.status === ctx.params.status)
+        .splice(0, ctx.params.limit || Infinity)
+    },
+  ),
+  createItem: proz.mutation(
+    proz.pipe(proz.body(z.object({ priority: z.number().max(5) }))),
+    async (ctx) => {
+      return { id: 'id', name: 'new item', priority: ctx.body.priority }
+    },
+  ),
 })
 
-createTestServer(procServer)
-const client = createClient<typeof procServer>({ fetch })
+createTestServer(prozResolver)
+const client = createProzClient<typeof prozResolver>({ fetch })
 
 test('handles params in queries', async () => {
   expect(await client.query.items({ limit: 2, status: 'todo' })).toEqual([

@@ -27,11 +27,13 @@
   "keywords": [
     "rpc",
     "api",
-    "typescript",
     "simple",
+    "typescript",
     "typed",
     "client",
-    "nextjs"
+    "nextjs",
+    "graphql",
+    "rest"
   ],
   "devDependencies": {
     "del-cli": "^4.0.1",

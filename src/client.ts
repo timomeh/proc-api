@@ -1,50 +1,57 @@
-import { ClientOptions, Ctx, ProcHandler, ProcServer } from './types.js'
+import {
+  ProzClientOptions,
+  ProzCtx,
+  ProzHandler,
+  ProzResolver,
+  ProzHandlers,
+} from './types.js'
 
-type ExCtx = Ctx & { params?: any; body?: any }
+type ExCtx = ProzCtx & { params?: any; body?: any }
 
-type ProcHandlerCtx<TProcHandler extends ProcHandler<ExCtx>> = Awaited<
+type FinalProzHandlerCtx<TProcHandler extends ProzHandler<ExCtx>> = Awaited<
   ReturnType<TProcHandler['__ctxFn']>
 >
 
 type OptionalArg<
   TKey extends 'params' | 'body',
-  TProcHandler extends ProcHandler<ExCtx>,
-> = ProcHandlerCtx<TProcHandler> extends { [Property in TKey]: unknown }
-  ? [ProcHandlerCtx<TProcHandler>[TKey]]
+  THandler extends ProzHandler<ExCtx>,
+> = FinalProzHandlerCtx<THandler> extends { [Property in TKey]: unknown }
+  ? [FinalProzHandlerCtx<THandler>[TKey]]
   : []
 
-type CreateCallables<
-  TCallable extends Record<string, ProcHandler<Ctx>>,
-  TInputKey extends 'params' | 'body',
-> = {
-  [Property in keyof TCallable]: (
-    ...params: OptionalArg<TInputKey, TCallable[Property]>
-  ) => Promise<Awaited<ReturnType<TCallable[Property]['run']>>>
+type CreateQueryHandlers<THandlers extends ProzHandlers> = {
+  [Property in keyof THandlers as THandlers[Property]['__type'] extends 'query'
+    ? Property
+    : never]: (
+    ...params: OptionalArg<'params', THandlers[Property]>
+  ) => Promise<Awaited<ReturnType<THandlers[Property]['run']>>>
 }
 
-export function createClient<TProcServer extends ProcServer>(
-  opts: ClientOptions,
+type CreateMutationHandlers<THandlers extends ProzHandlers> = {
+  [Property in keyof THandlers as THandlers[Property]['__type'] extends 'mutation'
+    ? Property
+    : never]: (
+    ...params: OptionalArg<'body', THandlers[Property]>
+  ) => Promise<Awaited<ReturnType<THandlers[Property]['run']>>>
+}
+
+export function createProzClient<TResolver extends ProzResolver>(
+  opts: ProzClientOptions,
 ) {
   return {
-    query: new Proxy(
-      {} as CreateCallables<TProcServer['__resolvers']['query'], 'params'>,
-      {
-        get(_target, procName: string) {
-          return async function (params: any) {
-            return opts.fetch({ method: 'GET', proc: procName, params })
-          }
-        },
+    query: new Proxy({} as CreateQueryHandlers<TResolver['__handlers']>, {
+      get(_target, name: string) {
+        return async function (params: any) {
+          return opts.fetch({ method: 'GET', name, params })
+        }
       },
-    ),
-    mutate: new Proxy(
-      {} as CreateCallables<TProcServer['__resolvers']['mutate'], 'body'>,
-      {
-        get(_target, procName: string) {
-          return async function (body: any) {
-            return opts.fetch({ method: 'POST', proc: procName, body })
-          }
-        },
+    }),
+    mutate: new Proxy({} as CreateMutationHandlers<TResolver['__handlers']>, {
+      get(_target, name: string) {
+        return async function (body: any) {
+          return opts.fetch({ method: 'POST', name, body })
+        }
       },
-    ),
+    }),
   }
 }

@@ -1,8 +1,8 @@
 import type { z, AnyZodObject as ZodInput } from 'zod'
 import type { InferType as YupInfer, AnyObjectSchema as YupInput } from 'yup'
-import { ProcCtx, Validator } from './types.js'
+import { ProzCtx, Validator } from './types.js'
 
-type Ctx = ProcCtx
+type Ctx = ProzCtx
 
 type CtxType = 'params' | 'body'
 type ValidationCtx<TType extends CtxType, TValidated, TCtx> = (
