@@ -10,10 +10,11 @@
   },
   "scripts": {
     "test": "vitest --dir test",
+    "publish-test": "vitest --dir test --watch false",
     "test-types": "tsd",
     "pretest-build": "del-cli dist example/.next && npm run build && (cd example && npm run build)",
     "test-build": "vitest scripts/app-bundle.test.ts --watch=false",
-    "release": "np",
+    "release": "np --no-cleanup --test-script=publish-test",
     "prepare": "npm run build",
     "build": "del-cli dist && tsc"
   },
