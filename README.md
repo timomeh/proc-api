@@ -126,7 +126,7 @@ const resolver = createProzResolver({
 export type Resolver = typeof resolver
 
 export default async (req, res) => {
-  const data = resolver.handleRequest(req, res)
+  const data = await resolver.handleRequest(req, res)
   // Put this in a try-catch for error handling
   res.json(data)
 }
