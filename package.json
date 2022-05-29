@@ -1,6 +1,6 @@
 {
   "name": "proz",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "TypeScript-powered HTTP RPC library for your own server and client",
   "license": "MIT",
   "author": "Timo Mämecke <maemecketimo@gmail.com> (https://github.com/timomeh)",
