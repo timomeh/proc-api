@@ -115,7 +115,7 @@ const addTodo = proz.mutation(addTodoCtx, async (ctx) => {
 
 import { createProzResolver } from 'proz'
 
-const prozResolver = createProzResolver({
+const resolver = createProzResolver({
   todos,
   openTodos,
   doneTodos,
@@ -123,20 +123,21 @@ const prozResolver = createProzResolver({
 })
 
 // We need this later for our client.
-export type ApiResolver = typeof prozResolver
+export type Resolver = typeof resolver
 
 export default async (req, res) => {
-  const data = prozServer.handle(req, res)
+  const data = resolver.handleRequest(req, res)
+  // Put this in a try-catch for error handling
   res.json(data)
 }
 
 // lib/api-client.ts
 
 import { createProzClient } from 'proz'
-import type { ApiResolver } from './whatever'
+import type { Resolver } from './whatever'
 
 // Create your api client and feed it with the type of the prozServer.
-const api = createProzClient<ApiResolver>({
+const api = createProzClient<Resolver>({
   fetch: ({ proc, method, body, params }) => {
     // Use your favorite HTTP library.
     return ky(`/api/${proc}`, {
