@@ -138,9 +138,9 @@ import type { Resolver } from './whatever'
 
 // Create your api client and feed it with the type of the prozServer.
 const api = createProzClient<Resolver>({
-  fetch: ({ proc, method, body, params }) => {
+  fetch: ({ name, method, body, params }) => {
     // Use your favorite HTTP library.
-    return ky(`/api/${proc}`, {
+    return ky(`/api/rpc/${name}`, {
       method,
       json: body,
       searchParams: params
