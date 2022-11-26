@@ -1,3 +1,7 @@
+⚠️ This package was just me playing around with something I built for a project
+a year earlier. **Use [tPRC](https://trpc.io/) instead. It's exactly what I
+wanted to do.**
+
 # proz
 
 > proz is a functional RPC-based API Layer for your Client-Server-Apps, which
